@@ -1,4 +1,5 @@
 #!/bin/bash
 ./build
-docker build -t yansunkai/custom-controller:0.0.1 .
-rm custom-controller
+docker build -t registry.cn-shanghai.aliyuncs.com/eip-kubernetes/custom-controller:0.0.1 .
+docker push registry.cn-shanghai.aliyuncs.com/eip-kubernetes/custom-controller:0.0.1
+#rm custom-controller

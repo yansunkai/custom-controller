@@ -12,18 +12,23 @@
 package main
 
 import (
-	"k8s.io/apiserver/pkg/server"
+	"flag"
 	"log"
 	"time"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/kubernetes/cmd/custom-controller/controller"
+	"github.com/yansunkai/custom-controller/controller"
 )
 
 func main() {
-	stopCh := server.SetupSignalHandler()
+	flag.Set("logtostderr", "true")
+	flag.Parse()
+	stopCh := make(chan struct{})
 
 	clusterConfig, err := rest.InClusterConfig()
 	if err != nil {
@@ -41,4 +46,11 @@ func main() {
 
 	go ifm.Start(stopCh)
 	c.Run(2, stopCh)
+
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	<-signalChan
+
+	log.Println("Shutdown signal received, exiting...")
+	close(stopCh)
 }
